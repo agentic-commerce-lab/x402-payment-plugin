@@ -1,0 +1,88 @@
+{
+  "name": "agentic-commerce-lab/x402-plugin",
+  "description": "Shopware 6 x402 payment plugin.",
+  "version": "1.0.0",
+  "type": "shopware-platform-plugin",
+  "license": "proprietary",
+  "require": {
+    "php": "^8.3",
+    "ext-ctype": "*",
+    "doctrine/dbal": "^3.9 || ^4.0",
+    "psr/clock": "^1.0",
+    "psr/log": "^3.0",
+    "shopware/core": "^6.7",
+    "shopware/storefront": "^6.7",
+    "symfony/console": "~7.4.0",
+    "symfony/http-client-contracts": "^3.0",
+    "symfony/http-foundation": "~7.4.0",
+    "symfony/messenger": "~7.4.0",
+    "symfony/routing": "~7.4.0"
+  },
+  "require-dev": {
+    "captainhook/captainhook": "^5.25",
+    "captainhook/hook-installer": "^1.0",
+    "carthage-software/mago": "^1.30",
+    "phauthentic/cognitive-code-analysis": "^1.11",
+    "phpunit/phpunit": "^11.5",
+    "shipmonk/composer-dependency-analyser": "^1.0",
+    "symfony/http-client": "~7.4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Swag\\X402Payments\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Swag\\X402Payments\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "shopware-plugin-class": "Swag\\X402Payments\\SwagX402Payments",
+    "label": {
+      "en-GB": "x402 Agentic Payment",
+      "de-DE": "x402 Agentic Payment"
+    },
+    "description": {
+      "en-GB": "Adds x402 protocol payments for Shopware Store API orders.",
+      "de-DE": "Ergänzt Shopware-Store-API-Bestellungen um Zahlungen über das x402-Protokoll."
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "captainhook/hook-installer": true,
+      "symfony/flex": true,
+      "symfony/runtime": true,
+      "php-http/discovery": false
+    },
+    "platform": {
+      "php": "8.3.0"
+    },
+    "sort-packages": true
+  },
+  "scripts": {
+    "test": "phpunit",
+    "format": "mago fmt",
+    "format:check": "mago fmt --check",
+    "lint": "mago lint",
+    "lint:fix": "mago lint --fix",
+    "typecheck": "mago analyze",
+    "quality:filesize": "php scripts/check_file_length.php src",
+    "quality:dupes": "jscpd",
+    "quality:boundaries": "mago guard",
+    "quality:depcheck": "composer-dependency-analyser",
+    "quality:security": "composer audit",
+    "quality": [
+      "@format:check",
+      "@lint",
+      "@typecheck",
+      "@quality:filesize",
+      "@quality:dupes",
+      "@quality:depcheck",
+      "@quality:security"
+    ],
+    "quality:deps": "composer outdated --direct",
+    "quality:maintainability": "phpcca analyse src",
+    "quality:hotspots": "phpcca churn src"
+  }
+}

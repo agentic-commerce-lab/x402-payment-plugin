@@ -1,0 +1,28 @@
+{
+    "swagX402": {
+        "pay": {
+            "title": "Pay order %orderNumber%",
+            "alreadyPaid": "This order is already paid.",
+            "settlementTransaction": "Settlement transaction:",
+            "amountLabel": "Amount:",
+            "amountDetail": "(%atomic% atomic %symbol% on %network%)",
+            "quoteValidUntil": "Quote valid until %expires%.",
+            "walletHint": "You need a browser wallet (e.g. MetaMask) holding %symbol% on the %network% network. The transfer is gasless for you.",
+            "payButton": "Pay with wallet",
+            "js": {
+                "noWallet": "No browser wallet found. Install MetaMask and reload this page.",
+                "connecting": "Connecting wallet…",
+                "switchNetwork": "Please switch your wallet to the %network% network and retry.",
+                "signPrompt": "Please sign the payment in your wallet…",
+                "submitting": "Submitting payment…",
+                "failedPrefix": "Payment failed: ",
+                "success": "Payment successful - the order is paid.",
+                "abortedPrefix": "Payment aborted: "
+            }
+        },
+        "finish": {
+            "notice": "Your order is reserved but not paid yet. Complete the payment with your crypto wallet - the amount is transferred as a stablecoin, gas-free for you.",
+            "payNow": "Pay now with wallet"
+        }
+    }
+}

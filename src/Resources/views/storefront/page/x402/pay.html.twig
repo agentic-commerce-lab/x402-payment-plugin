@@ -1,0 +1,181 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_content %}
+    <div class="container" style="max-width: 640px; padding: 3rem 1rem;">
+        <h1>{{ 'swagX402.pay.title'|trans({'%orderNumber%': x402Session.orderNumber})|sw_sanitize }}</h1>
+
+        {% if x402Session.isSettled %}
+            <div class="alert alert-success">
+                {{ 'swagX402.pay.alreadyPaid'|trans }}
+                {% if x402Session.settlementTransactionHash %}
+                    <br>{{ 'swagX402.pay.settlementTransaction'|trans }} <code>{{ x402Session.settlementTransactionHash }}</code>
+                {% endif %}
+            </div>
+        {% else %}
+            <p>
+                {{ 'swagX402.pay.amountLabel'|trans }}
+                <strong>{{ x402Session.shopwareAmount }} {{ x402Session.shopwareCurrency }}</strong>
+                {{ 'swagX402.pay.amountDetail'|trans({
+                    '%atomic%': x402Session.paymentAmountAtomic,
+                    '%symbol%': x402Session.assetSymbol,
+                    '%network%': x402Session.network,
+                })|sw_sanitize }}
+            </p>
+            <p class="text-muted">
+                {{ 'swagX402.pay.quoteValidUntil'|trans({'%expires%': x402Session.expiresAt|date('Y-m-d H:i:s')})|sw_sanitize }}
+                {{ 'swagX402.pay.walletHint'|trans({
+                    '%symbol%': x402Session.assetSymbol,
+                    '%network%': x402Session.network,
+                })|sw_sanitize }}
+            </p>
+
+            <button id="x402-pay-button" class="btn btn-primary btn-lg">
+                {{ 'swagX402.pay.payButton'|trans }}
+            </button>
+
+            <div id="x402-status" class="mt-3"></div>
+
+            <script>
+                const x402 = {
+                    requirements: {{ x402Requirements|json_encode|raw }},
+                    payUrl: {{ x402PayUrl|json_encode|raw }},
+                    deepLinkCode: {{ x402DeepLinkCode|json_encode|raw }},
+                    accessKey: {{ x402AccessKey|json_encode|raw }},
+                    chainIds: { 'base': '0x2105', 'base-sepolia': '0x14a34' },
+                    messages: {{ {
+                        noWallet: 'swagX402.pay.js.noWallet'|trans,
+                        connecting: 'swagX402.pay.js.connecting'|trans,
+                        switchNetwork: 'swagX402.pay.js.switchNetwork'|trans,
+                        signPrompt: 'swagX402.pay.js.signPrompt'|trans,
+                        submitting: 'swagX402.pay.js.submitting'|trans,
+                        failedPrefix: 'swagX402.pay.js.failedPrefix'|trans,
+                        success: 'swagX402.pay.js.success'|trans,
+                        settlementTransaction: 'swagX402.pay.settlementTransaction'|trans,
+                        abortedPrefix: 'swagX402.pay.js.abortedPrefix'|trans,
+                    }|json_encode|raw }},
+                };
+
+                const statusBox = document.getElementById('x402-status');
+                const payButton = document.getElementById('x402-pay-button');
+
+                function show(kind, message) {
+                    statusBox.innerHTML = '<div class="alert alert-' + kind + '">' + message + '</div>';
+                }
+
+                function randomNonce() {
+                    const bytes = crypto.getRandomValues(new Uint8Array(32));
+                    return '0x' + Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+                }
+
+                async function payWithWallet() {
+                    if (!window.ethereum) {
+                        show('danger', x402.messages.noWallet);
+                        return;
+                    }
+
+                    payButton.disabled = true;
+
+                    try {
+                        const req = x402.requirements;
+                        const chainId = x402.chainIds[req.network];
+
+                        show('info', x402.messages.connecting);
+                        const [from] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+                        try {
+                            await window.ethereum.request({
+                                method: 'wallet_switchEthereumChain',
+                                params: [{ chainId }],
+                            });
+                        } catch (switchError) {
+                            show('warning', x402.messages.switchNetwork.replace('%network%', req.network));
+                            payButton.disabled = false;
+                            return;
+                        }
+
+                        const now = Math.floor(Date.now() / 1000);
+                        const authorization = {
+                            from,
+                            to: req.payTo,
+                            value: req.maxAmountRequired,
+                            validAfter: '0',
+                            validBefore: String(now + req.maxTimeoutSeconds),
+                            nonce: randomNonce(),
+                        };
+
+                        const typedData = {
+                            types: {
+                                EIP712Domain: [
+                                    { name: 'name', type: 'string' },
+                                    { name: 'version', type: 'string' },
+                                    { name: 'chainId', type: 'uint256' },
+                                    { name: 'verifyingContract', type: 'address' },
+                                ],
+                                TransferWithAuthorization: [
+                                    { name: 'from', type: 'address' },
+                                    { name: 'to', type: 'address' },
+                                    { name: 'value', type: 'uint256' },
+                                    { name: 'validAfter', type: 'uint256' },
+                                    { name: 'validBefore', type: 'uint256' },
+                                    { name: 'nonce', type: 'bytes32' },
+                                ],
+                            },
+                            primaryType: 'TransferWithAuthorization',
+                            domain: {
+                                name: req.extra.name,
+                                version: req.extra.version,
+                                chainId: parseInt(chainId, 16),
+                                verifyingContract: req.asset,
+                            },
+                            message: authorization,
+                        };
+
+                        show('info', x402.messages.signPrompt);
+                        const signature = await window.ethereum.request({
+                            method: 'eth_signTypedData_v4',
+                            params: [from, JSON.stringify(typedData)],
+                        });
+
+                        const paymentHeader = btoa(JSON.stringify({
+                            x402Version: 1,
+                            scheme: req.scheme,
+                            network: req.network,
+                            payload: { signature, authorization },
+                        }));
+
+                        show('info', x402.messages.submitting);
+                        const url = x402.payUrl + (x402.deepLinkCode ? '?deepLinkCode=' + encodeURIComponent(x402.deepLinkCode) : '');
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'sw-access-key': x402.accessKey,
+                                'X-PAYMENT': paymentHeader,
+                                'Idempotency-Key': crypto.randomUUID(),
+                            },
+                        });
+                        const result = await response.json();
+
+                        if (!response.ok) {
+                            const detail = result.errors?.[0]?.detail ?? 'Unknown error';
+                            show('danger', x402.messages.failedPrefix + detail);
+                            payButton.disabled = false;
+                            return;
+                        }
+
+                        let message = x402.messages.success;
+                        if (result.payment?.transactionHash) {
+                            message += '<br>' + x402.messages.settlementTransaction + ' <code>' + result.payment.transactionHash + '</code>';
+                        }
+                        show('success', message);
+                        payButton.remove();
+                    } catch (error) {
+                        show('danger', x402.messages.abortedPrefix + (error?.message ?? error));
+                        payButton.disabled = false;
+                    }
+                }
+
+                payButton.addEventListener('click', payWithWallet);
+            </script>
+        {% endif %}
+    </div>
+{% endblock %}

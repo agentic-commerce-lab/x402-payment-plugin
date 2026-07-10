@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>x402 Payment</title>
+        <input-field type="bool">
+            <name>enabled</name>
+            <label>Enabled</label>
+            <defaultValue>false</defaultValue>
+        </input-field>
+        <input-field type="text">
+            <name>facilitatorBaseUrl</name>
+            <label>Facilitator base URL</label>
+            <helpText>Endpoint offering /verify and /settle, e.g. https://facilitator.example.com</helpText>
+        </input-field>
+        <input-field type="password">
+            <name>facilitatorApiKey</name>
+            <label>Facilitator API key</label>
+        </input-field>
+        <input-field type="text">
+            <name>merchantWalletAddress</name>
+            <label>Merchant wallet address (payTo)</label>
+        </input-field>
+        <input-field type="text">
+            <name>network</name>
+            <label>Network</label>
+            <defaultValue>base</defaultValue>
+        </input-field>
+        <input-field type="text">
+            <name>assetAddress</name>
+            <label>Asset contract address</label>
+        </input-field>
+        <input-field type="text">
+            <name>assetSymbol</name>
+            <label>Asset symbol</label>
+            <defaultValue>USDC</defaultValue>
+        </input-field>
+        <input-field type="int">
+            <name>assetDecimals</name>
+            <label>Asset decimals</label>
+            <defaultValue>6</defaultValue>
+        </input-field>
+        <input-field type="text">
+            <name>supportedCurrency</name>
+            <label>Supported order currency (ISO code)</label>
+            <helpText>Orders in other currencies are rejected. x402 uses no FX conversion (spec 13.1, option A).</helpText>
+            <defaultValue>EUR</defaultValue>
+        </input-field>
+    </card>
+    <card>
+        <title>x402 Limits and Timeouts</title>
+        <input-field type="float">
+            <name>minOrderAmount</name>
+            <label>Minimum order amount</label>
+            <defaultValue>0.5</defaultValue>
+        </input-field>
+        <input-field type="float">
+            <name>maxOrderAmount</name>
+            <label>Maximum order amount</label>
+            <defaultValue>1000</defaultValue>
+        </input-field>
+        <input-field type="int">
+            <name>maxTimeoutSeconds</name>
+            <label>Payment requirement timeout (seconds)</label>
+            <defaultValue>300</defaultValue>
+        </input-field>
+        <input-field type="int">
+            <name>facilitatorTimeoutSeconds</name>
+            <label>Facilitator HTTP timeout (seconds)</label>
+            <defaultValue>15</defaultValue>
+        </input-field>
+        <input-field type="int">
+            <name>sessionExpiryMinutes</name>
+            <label>Expire unpaid sessions after (minutes)</label>
+            <defaultValue>30</defaultValue>
+        </input-field>
+    </card>
+    <card>
+        <title>x402 Interoperability</title>
+        <input-field type="bool">
+            <name>allowDeepLinkOwnershipProof</name>
+            <label>Allow deep-link ownership proof</label>
+            <helpText>Lets agents pay an order by presenting its deepLinkCode. Required for orders placed through UCP checkout (SwagAgenticCommerce).</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+        <input-field type="bool">
+            <name>allowAfterOrderPaymentMethodSwitch</name>
+            <label>Allow after-order payment method switch</label>
+            <helpText>Lets the x402 pay route switch an open order transaction from another payment method to x402. Required for UCP-placed orders.</helpText>
+            <defaultValue>true</defaultValue>
+        </input-field>
+    </card>
+</config>

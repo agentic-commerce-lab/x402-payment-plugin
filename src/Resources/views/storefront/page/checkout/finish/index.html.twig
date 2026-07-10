@@ -1,0 +1,25 @@
+{% sw_extends '@Storefront/storefront/page/checkout/finish/index.html.twig' %}
+
+{% block page_checkout_finish %}
+    {{ parent() }}
+
+    {% set x402Transaction = page.order.primaryOrderTransaction ?? (page.order.transactions|last) %}
+    {# stateMachineState is not loaded on the finish page; a just-placed x402
+       order is always unpaid, so only exclude it when it is loaded and not open #}
+    {% if x402Transaction
+        and x402Transaction.paymentMethod
+        and x402Transaction.paymentMethod.technicalName == 'swag_x402_agentic'
+        and (x402Transaction.stateMachineState is null or x402Transaction.stateMachineState.technicalName == 'open') %}
+        <div class="container">
+            <div class="alert alert-info mt-3">
+                <p>
+                    {{ 'swagX402.finish.notice'|trans }}
+                </p>
+                <a class="btn btn-primary"
+                   href="{{ path('frontend.x402.pay', { orderId: page.order.id }) }}?deepLinkCode={{ page.order.deepLinkCode }}">
+                    {{ 'swagX402.finish.payNow'|trans }}
+                </a>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

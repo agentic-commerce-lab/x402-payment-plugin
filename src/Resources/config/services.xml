@@ -1,0 +1,147 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <!-- Entity -->
+        <service id="Swag\X402Payments\Core\Content\X402PaymentSession\X402PaymentSessionDefinition">
+            <tag name="shopware.entity.definition" entity="swag_x402_payment_session"/>
+        </service>
+
+        <!-- Payment handler -->
+        <service id="Swag\X402Payments\Core\Checkout\Payment\X402PaymentHandler">
+            <tag name="shopware.payment.method"/>
+        </service>
+
+        <!-- Config -->
+        <service id="Swag\X402Payments\Core\X402\Config\X402ConfigService">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <!-- Pure domain services -->
+        <service id="Swag\X402Payments\Core\X402\X402AmountConverter"/>
+        <service id="Swag\X402Payments\Core\X402\X402QuoteHasher"/>
+        <service id="Swag\X402Payments\Core\X402\X402PayloadParser"/>
+
+        <service id="Swag\X402Payments\Core\X402\X402PayloadValidator">
+            <argument type="service" id="Swag\X402Payments\Core\X402\X402AmountConverter"/>
+            <argument type="service" id="clock"/>
+        </service>
+
+        <service id="Swag\X402Payments\Core\X402\X402RequirementBuilder">
+            <argument type="service" id="Swag\X402Payments\Core\X402\X402AmountConverter"/>
+            <argument type="service" id="Swag\X402Payments\Core\X402\X402QuoteHasher"/>
+            <argument type="service" id="clock"/>
+        </service>
+
+        <service id="Swag\X402Payments\Core\X402\X402FacilitatorClient">
+            <argument type="service" id="http_client"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Swag\X402Payments\Core\X402\X402PaymentSessionService">
+            <argument type="service" id="swag_x402_payment_session.repository"/>
+            <argument type="service" id="Swag\X402Payments\Core\X402\X402RequirementBuilder"/>
+            <argument type="service" id="clock"/>
+        </service>
+
+        <!-- Order / transaction services -->
+        <service id="Swag\X402Payments\Core\Checkout\Payment\X402TransactionStateService">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Swag\X402Payments\Core\Checkout\Order\X402OrderResolver">
+            <argument type="service" id="order.repository"/>
+        </service>
+
+        <service id="Swag\X402Payments\Core\Checkout\Order\X402OrderOwnershipVerifier"/>
+
+        <service id="Swag\X402Payments\Core\Checkout\Payment\X402PaymentMethodResolver">
+            <argument type="service" id="payment_method.repository"/>
+        </service>
+
+        <service id="Swag\X402Payments\Core\Checkout\Payment\X402PaymentMethodSwitcher">
+            <argument type="service" id="order_transaction.repository"/>
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader"/>
+            <argument type="service" id="Swag\X402Payments\Core\Checkout\Payment\X402TransactionStateService"/>
+        </service>
+
+        <service id="Swag\X402Payments\Core\X402\X402SettlementService">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Swag\X402Payments\Core\X402\X402PaymentSessionService"/>
+            <argument type="service" id="Swag\X402Payments\Core\X402\X402PayloadValidator"/>
+            <argument type="service" id="Swag\X402Payments\Core\X402\X402FacilitatorClient"/>
+            <argument type="service" id="Swag\X402Payments\Core\Checkout\Payment\X402TransactionStateService"/>
+        </service>
+
+        <service id="Swag\X402Payments\Core\X402\X402SettlementRecoveryService">
+            <argument type="service" id="swag_x402_payment_session.repository"/>
+            <argument type="service" id="order_transaction.repository"/>
+            <argument type="service" id="Swag\X402Payments\Core\Checkout\Payment\X402TransactionStateService"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <!-- CLI -->
+        <service id="Swag\X402Payments\Command\X402RecoverSettlementsCommand">
+            <argument type="service" id="Swag\X402Payments\Core\X402\X402SettlementRecoveryService"/>
+            <tag name="console.command"/>
+        </service>
+
+        <!-- Store API -->
+        <service id="Swag\X402Payments\StoreApi\X402PaymentResponseFactory"/>
+
+        <service id="Swag\X402Payments\StoreApi\X402PaymentSessionFactory">
+            <argument type="service" id="Swag\X402Payments\Core\Checkout\Order\X402OrderResolver"/>
+            <argument type="service" id="Swag\X402Payments\Core\Checkout\Order\X402OrderOwnershipVerifier"/>
+            <argument type="service" id="Swag\X402Payments\Core\Checkout\Payment\X402PaymentMethodResolver"/>
+            <argument type="service" id="Swag\X402Payments\Core\Checkout\Payment\X402PaymentMethodSwitcher"/>
+            <argument type="service" id="Swag\X402Payments\Core\X402\X402PaymentSessionService"/>
+        </service>
+
+        <service id="Swag\X402Payments\StoreApi\X402CapabilitiesRoute" public="true">
+            <argument type="service" id="Swag\X402Payments\Core\X402\Config\X402ConfigService"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <service id="Swag\X402Payments\StoreApi\X402OrderPaymentRoute" public="true">
+            <argument type="service" id="Swag\X402Payments\Core\X402\Config\X402ConfigService"/>
+            <argument type="service" id="Swag\X402Payments\StoreApi\X402PaymentSessionFactory"/>
+            <argument type="service" id="Swag\X402Payments\Core\X402\X402PayloadParser"/>
+            <argument type="service" id="Swag\X402Payments\Core\X402\X402SettlementService"/>
+            <argument type="service" id="Swag\X402Payments\StoreApi\X402PaymentResponseFactory"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <service id="Swag\X402Payments\StoreApi\X402PaymentSessionRoute" public="true">
+            <argument type="service" id="Swag\X402Payments\Core\X402\X402PaymentSessionService"/>
+            <argument type="service" id="Swag\X402Payments\StoreApi\X402PaymentResponseFactory"/>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <!-- Storefront -->
+        <service id="Swag\X402Payments\Storefront\Controller\X402PaymentController" public="true">
+            <argument type="service" id="Swag\X402Payments\Core\X402\Config\X402ConfigService"/>
+            <argument type="service" id="Swag\X402Payments\StoreApi\X402PaymentSessionFactory"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <tag name="controller.service_arguments"/>
+        </service>
+
+        <!-- Scheduled task -->
+        <service id="Swag\X402Payments\ScheduledTask\ExpireX402PaymentSessionsTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Swag\X402Payments\ScheduledTask\ExpireX402PaymentSessionsHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Swag\X402Payments\Core\X402\X402PaymentSessionService"/>
+            <argument type="service" id="Swag\X402Payments\Core\Checkout\Payment\X402TransactionStateService"/>
+            <argument type="service" id="clock"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+    </services>
+</container>

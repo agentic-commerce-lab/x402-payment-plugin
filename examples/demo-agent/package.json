@@ -1,0 +1,16 @@
+{
+  "name": "swag-x402-demo-agent",
+  "private": true,
+  "type": "module",
+  "description": "Demo agent that buys a product via Shopware Store API and pays with x402.",
+  "scripts": {
+    "start": "node --env-file=.env agent.mjs",
+    "agent": "node --env-file=.env agent.mjs",
+    "wallet": "node wallet.mjs",
+    "pay-order": "node --env-file=.env pay-order.mjs"
+  },
+  "dependencies": {
+    "viem": "^2.21.0",
+    "x402-fetch": "^0.4.0"
+  }
+}

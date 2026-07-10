@@ -1,0 +1,8 @@
+/vendor/
+/var/
+/build/
+/dist/
+/report/
+/.phpcca.cache/
+/composer.lock
+skills.lock

@@ -1,0 +1,44 @@
+version = "1.30.0"
+php-version = "8.3"
+
+[source]
+paths = ["src", "tests"]
+includes = ["vendor"]
+excludes = ["var/**", "build/**", "dist/**"]
+extensions = ["php"]
+
+[formatter]
+
+[linter]
+minimum-fail-level = "error"
+
+[linter.rules]
+cyclomatic-complexity = { level = "error", threshold = 10 }
+excessive-parameter-list = { level = "error", threshold = 5 }
+excessive-nesting = { level = "error", threshold = 4 }
+strict-types = { level = "error", allow-disabling = false }
+no-debug-symbols = { level = "error" }
+
+[analyzer]
+find-unused-parameters = true
+analyze-dead-code = true
+check-property-initialization = true
+check-missing-override = true
+check-use-statements = true
+strict-array-index-existence = true
+check-throws = true
+unchecked-exceptions = ["RuntimeException", "LogicException", "Doctrine\\DBAL\\Exception"]
+# tests/: PHPUnit idioms the analyzer cannot model - setUp() property
+# initialization, mock intersection types, decoded JSON fixtures, and
+# assertion helpers that intentionally let exceptions escape.
+ignore = [
+  { code = "check-throws", in = "tests/" },
+  { code = "unhandled-thrown-type", in = "tests/" },
+  { code = "uninitialized-property", in = "tests/" },
+  { code = "mixed-array-access", in = "tests/" },
+  { code = "possibly-null-property-access", in = "tests/" },
+  { code = "possible-method-access-on-null", in = "tests/" },
+  { code = "possibly-null-argument", in = "tests/" },
+]
+
+[guard]

@@ -1,0 +1,28 @@
+{
+    "swagX402": {
+        "pay": {
+            "title": "Bestellung %orderNumber% bezahlen",
+            "alreadyPaid": "Diese Bestellung ist bereits bezahlt.",
+            "settlementTransaction": "Settlement-Transaktion:",
+            "amountLabel": "Betrag:",
+            "amountDetail": "(%atomic% atomare %symbol% auf %network%)",
+            "quoteValidUntil": "Angebot gültig bis %expires%.",
+            "walletHint": "Du benötigst eine Browser-Wallet (z. B. MetaMask) mit %symbol% im Netzwerk %network%. Die Überweisung ist für dich gebührenfrei (gasless).",
+            "payButton": "Mit Wallet bezahlen",
+            "js": {
+                "noWallet": "Keine Browser-Wallet gefunden. Installiere MetaMask und lade die Seite neu.",
+                "connecting": "Wallet wird verbunden…",
+                "switchNetwork": "Bitte wechsle in deiner Wallet zum Netzwerk %network% und versuche es erneut.",
+                "signPrompt": "Bitte signiere die Zahlung in deiner Wallet…",
+                "submitting": "Zahlung wird übermittelt…",
+                "failedPrefix": "Zahlung fehlgeschlagen: ",
+                "success": "Zahlung erfolgreich - die Bestellung ist bezahlt.",
+                "abortedPrefix": "Zahlung abgebrochen: "
+            }
+        },
+        "finish": {
+            "notice": "Deine Bestellung ist reserviert, aber noch nicht bezahlt. Schließe die Zahlung mit deiner Krypto-Wallet ab - der Betrag wird als Stablecoin überwiesen, für dich gebührenfrei.",
+            "payNow": "Jetzt mit Wallet bezahlen"
+        }
+    }
+}
