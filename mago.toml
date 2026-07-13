@@ -31,7 +31,13 @@ unchecked-exceptions = ["RuntimeException", "LogicException", "Doctrine\\DBAL\\E
 # tests/: PHPUnit idioms the analyzer cannot model - setUp() property
 # initialization, mock intersection types, decoded JSON fixtures, and
 # assertion helpers that intentionally let exceptions escape.
+# src/Ucp/: optional bridge to ucp-php-sdk / SwagAgenticCommerce, whose
+# classes are not installed in this repo (services load conditionally at
+# runtime; see SwagX402Payments::build()).
 ignore = [
+  { code = "non-existent-class-like", in = "src/Ucp/" },
+  { code = "non-existent-use-import", in = "src/Ucp/" },
+  { code = "unhandled-thrown-type", in = "src/Ucp/" },
   { code = "check-throws", in = "tests/" },
   { code = "unhandled-thrown-type", in = "tests/" },
   { code = "uninitialized-property", in = "tests/" },

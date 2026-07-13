@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
+    <!-- Loaded only when SwagAgenticCommerce is installed (SwagX402Payments::build()). -->
+    <services>
+        <service id="Swag\X402Payments\Ucp\X402UcpPaymentAuthorizer">
+            <argument type="service" id="Swag\X402Payments\Core\X402\Config\X402ConfigService"/>
+            <argument type="service" id="Swag\X402Payments\Core\X402\X402AmountConverter"/>
+            <argument type="service" id="clock"/>
+            <tag name="swag_agentic_commerce.ucp.payment_authorizer"/>
+        </service>
+    </services>
+</container>

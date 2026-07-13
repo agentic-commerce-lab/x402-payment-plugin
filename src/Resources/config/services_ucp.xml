@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
+    <!-- Loaded only when ucp-php-sdk is installed (SwagX402Payments::build()). -->
+    <services>
+        <service id="Swag\X402Payments\Ucp\X402UcpPaymentHandler">
+            <argument type="service" id="Swag\X402Payments\Core\Checkout\Payment\X402PaymentMethodResolver"/>
+            <tag name="ucp_sdk.payment_handler"/>
+        </service>
+
+        <service id="Swag\X402Payments\Ucp\X402CheckoutResponseAugmenter">
+            <argument type="service" id="order.repository"/>
+            <argument type="service" id="Swag\X402Payments\Core\X402\Config\X402ConfigService"/>
+            <tag name="ucp_sdk.checkout_response_augmenter"/>
+        </service>
+    </services>
+</container>

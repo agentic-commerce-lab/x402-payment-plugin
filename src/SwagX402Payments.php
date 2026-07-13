@@ -11,11 +11,36 @@ use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
 use Swag\X402Payments\Core\Checkout\Payment\X402PaymentMethodInstaller;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 // Inherited bundle properties are initialized by the Shopware kernel.
 // @mago-expect analysis:missing-constructor
 final class SwagX402Payments extends Plugin
 {
+    /**
+     * @throws \Exception when a conditional service definition file cannot be loaded
+     */
+    #[\Override]
+    public function build(ContainerBuilder $container): void
+    {
+        parent::build($container);
+
+        // Optional UCP bridge (spec 26.4): the plugin must install and run
+        // without SwagAgenticCommerce / ucp-php-sdk, so these services load
+        // only when the extension points exist.
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/Resources/config'));
+
+        if (interface_exists('Ucp\Sdk\Contract\PaymentHandlerInterface')) {
+            $loader->load('services_ucp.xml');
+        }
+
+        if (interface_exists('Swag\AgenticCommerce\Ucp\Payment\PaymentAuthorizerInterface')) {
+            $loader->load('services_ucp_authorizer.xml');
+        }
+    }
+
     #[\Override]
     public function install(InstallContext $installContext): void
     {

@@ -221,6 +221,71 @@ Common causes: the plugin is not configured for the sales channel
 (`SWAG_X402__CURRENCY_NOT_SUPPORTED` — the sales channel currency must equal
 `supportedCurrency`), or the payment method is not activated or assigned.
 
+## Testing together with UCP (SwagAgenticCommerce)
+
+x402 does **not** appear in `/.well-known/ucp` under `payment_handlers` — by design
+(spec section 26). UCP only advertises handlers that support credential
+tokenization, and x402 uses per-order signed authorizations instead of vaulted
+credentials. The integration is order-first: UCP places the order, x402 pays it.
+
+```
+UCP checkout (REST/A2A/MCP) → order placed, transaction open (default payment method)
+→ agent calls POST /store-api/x402/order/{orderId}/pay?deepLinkCode=…
+→ plugin switches the transaction to x402 (after-order switch)
+→ HTTP 402 → sign → X-PAYMENT → verify/settle → paid
+```
+
+Prerequisites on a dev stack:
+
+1. Both plugins installed and active; x402 configured (see above).
+2. The UCP sales channel's **signature policy** set to `log` so unsigned curl
+   requests pass (Admin API: `PUT /api/_admin/ucp/sales-channels/{id}/config` —
+   note this endpoint replaces the whole config object, so send all fields).
+3. The sales channel **domain** currency must equal the x402 `supportedCurrency`.
+   UCP resolves its context through the domain, so a domain pinned to EUR
+   produces EUR orders even if the channel default is USD.
+
+Run a UCP checkout (every `/ucp/*` call needs `UCP-Agent` and `Idempotency-Key`
+headers):
+
+```bash
+UA='UCP-Agent: platform; profile="http://localhost:8000/.well-known/ucp"'
+# 1. find a product
+curl -s -X POST localhost:8000/ucp/v1/catalog/search -H "$UA" -H "Idempotency-Key: $(uuidgen)" \
+  -H 'Content-Type: application/json' -d '{"query":"","limit":3}'
+# 2. create a checkout session (line items + buyer + shipping in one call)
+curl -s -X POST localhost:8000/ucp/v1/checkout-sessions -H "$UA" -H "Idempotency-Key: $(uuidgen)" \
+  -H 'Content-Type: application/json' -d '{
+    "line_items": [{ "item": { "id": "<product-id>" }, "quantity": 1 }],
+    "buyer": { "email": "agent@example.test" },
+    "fulfillment": { "type": "shipping", "extra": { "shipping_address": {
+      "street": "Agent Street 1", "zipcode": "48624", "city": "Schoeppingen", "country_code": "DE" } } }
+  }'
+# 3. complete it ("payment" key is required, an empty object is fine without AP2)
+curl -s -X POST localhost:8000/ucp/v1/checkout-sessions/<checkout-id>/complete \
+  -H "$UA" -H "Idempotency-Key: $(uuidgen)" -H 'Content-Type: application/json' -d '{"payment":{}}'
+```
+
+The completion response contains `order.id`. **Known gap:** the current UCP
+plugin does not expose the order `deepLinkCode` to the client (it is stored
+only in server-side session metadata), so for now fetch it merchant-side:
+
+```bash
+docker compose exec database mariadb -uroot -proot shopware -N -e \
+  "SELECT deep_link_code FROM \`order\` WHERE id = UNHEX('<order-id-without-dashes>');"
+```
+
+Then pay the order:
+
+```bash
+cd examples/demo-agent
+npm run pay-order -- <order-id> <deep-link-code>
+```
+
+Afterwards the order has two transactions: the original default-method one
+(`cancelled`) and a `swag_x402_agentic` one (`paid`) — that is the after-order
+switch working as specified.
+
 ## For developers
 
 Quality gate and coding conventions: see [AGENTS.md](AGENTS.md).
