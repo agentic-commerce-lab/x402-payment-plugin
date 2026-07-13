@@ -1,15 +1,15 @@
 # SwagX402Payments
 
-A payment plugin for Shopware 6.7+ that enables **AI agents and automated clients
-to pay for orders programmatically** — no checkout form, no credit card, no manual
-interaction.
+A **research preview** of a payment plugin for Shopware 6.7+ that enables **AI agents
+and automated clients to pay for orders programmatically** — no checkout form, no
+credit card, no manual interaction.
 
 The buyer (typically a program) places a regular order through Shopware's Store API
 and then settles it with a cryptographic signature. The payment is made in a
 stablecoin (a digital token pegged to the US dollar) and transferred from the
 buyer's wallet to the shop's wallet. The entire exchange takes place over plain HTTP.
 
-Full technical specification: [shopware6-x402-payment-plugin-spec(1).md](<shopware6-x402-payment-plugin-spec(1).md>)
+Full technical specification: [docs/spec.md](docs/spec.md)
 
 ## The concepts in two minutes
 

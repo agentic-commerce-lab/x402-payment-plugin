@@ -3,7 +3,7 @@
   "description": "Shopware 6 x402 payment plugin.",
   "version": "1.0.0",
   "type": "shopware-platform-plugin",
-  "license": "proprietary",
+  "license": "MIT",
   "require": {
     "php": "^8.3",
     "ext-ctype": "*",

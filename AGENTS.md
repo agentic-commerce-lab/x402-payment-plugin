@@ -1,9 +1,8 @@
 # Agent Notes
 
 This repository holds the Shopware 6 x402 payment plugin (working name
-`SwagX402Payments`). It is currently in the specification phase: the only
-artifact is [shopware6-x402-payment-plugin-spec(1).md](shopware6-x402-payment-plugin-spec(1).md),
-which is the single source of truth for scope, architecture, API contracts,
+`SwagX402Payments`). The spec, [docs/spec.md](docs/spec.md),
+is the single source of truth for scope, architecture, API contracts,
 data model, security requirements, and testing strategy. Read the relevant
 spec sections before making any change, whether to the spec or (later) to
 implementation code.
