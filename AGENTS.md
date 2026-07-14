@@ -86,7 +86,8 @@ repos first.
 ## Quality Gate
 
 This project runs the ACL quality gate in strict mode for one gated root: the
-Shopware plugin project at this repository root. The PHP target is 8.3, source
+Shopware plugin project at this repository root. The PHP target is 8.2 (the
+minimum supported version; do not use 8.3+-only features in `src`), source
 code lives under `src`, and CI is the authority.
 
 - Run the unit suite: `composer run test` (PHPUnit, `tests/Unit`)

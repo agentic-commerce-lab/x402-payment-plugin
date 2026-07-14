@@ -28,7 +28,8 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.3"
+          # Run on the minimum supported PHP so the ^8.2 claim stays enforced.
+          php-version: "8.2"
           coverage: none
           tools: composer
 
