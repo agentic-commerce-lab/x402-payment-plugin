@@ -51,7 +51,21 @@ setup) with at least one product in the catalog.
 
 ### Step 1: Install the plugin (both levels)
 
-Mount the plugin into your Shopware installation and install it:
+**Option A — download the release zip.** Every merge to `main` publishes a
+ready-built plugin zip:
+[**Download SwagX402Payments.zip (latest release)**](https://github.com/agentic-commerce-lab/x402-payment-plugin/releases/latest/download/SwagX402Payments.zip)
+
+Upload it in the Administration under **Extensions → My extensions →
+Upload extension**, or install it from the command line:
+
+```bash
+docker compose cp SwagX402Payments.zip web:/tmp/
+docker compose exec web bin/console plugin:zip-import /tmp/SwagX402Payments.zip
+docker compose exec web bin/console plugin:install --activate SwagX402Payments
+docker compose exec web bin/console cache:clear
+```
+
+**Option B — mount the source** (for development):
 
 ```yaml
 # compose.override.yaml, under services -> web:

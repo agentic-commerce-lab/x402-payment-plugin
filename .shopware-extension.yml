@@ -1,0 +1,41 @@
+compatibility_date: "2026-07-14"
+
+build:
+  zip:
+    composer:
+      enabled: true
+    assets:
+      enabled: false
+    pack:
+      excludes:
+        paths:
+          - examples
+          - tests
+          - docs
+          - scripts
+          - report
+          - var
+          - vendor
+          - .vscode
+          - .claude
+          - .github
+          - .agents
+          - AGENTS.md
+          - mago.toml
+          - phpcca.yaml
+          - .jscpd.json
+          - captainhook.json
+          - composer-dependency-analyser.php
+          - phpunit.xml.dist
+          - skills.lock
+          - .editorconfig
+
+validation:
+  # Research preview: store-listing metadata (icon, authors, marketing
+  # descriptions, manufacturer/support links) is intentionally not maintained.
+  ignore:
+    - metadata.icon
+    - metadata.author
+    - metadata.description
+    - metadata.manufacturer
+    - metadata.support
