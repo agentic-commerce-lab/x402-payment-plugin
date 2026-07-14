@@ -4,6 +4,12 @@
   "version": "1.0.0",
   "type": "shopware-platform-plugin",
   "license": "MIT",
+  "authors": [
+    {
+      "name": "shopware AG",
+      "homepage": "https://www.shopware.com"
+    }
+  ],
   "require": {
     "php": "^8.3",
     "ext-ctype": "*",
@@ -46,8 +52,17 @@
       "de-DE": "x402 Agentic Payment"
     },
     "description": {
-      "en-GB": "Adds x402 protocol payments for Shopware Store API orders.",
-      "de-DE": "Ergänzt Shopware-Store-API-Bestellungen um Zahlungen über das x402-Protokoll."
+      "en-GB": "Adds x402 protocol payments to Shopware: AI agents and headless clients pay open orders with signed stablecoin authorizations over HTTP 402, verified and settled via a facilitator.",
+      "de-DE": "Ergänzt Shopware um x402-Zahlungen: KI-Agenten und Headless-Clients bezahlen offene Bestellungen per signierter Stablecoin-Autorisierung über HTTP 402, Abwicklung via Facilitator."
+    },
+    "plugin-icon": "src/Resources/config/plugin.png",
+    "manufacturerLink": {
+      "en-GB": "https://www.shopware.com",
+      "de-DE": "https://www.shopware.com/de/"
+    },
+    "supportLink": {
+      "en-GB": "https://www.shopware.com",
+      "de-DE": "https://www.shopware.com/de/"
     }
   },
   "config": {

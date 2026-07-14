@@ -1,0 +1,31 @@
+compatibility_date: "2026-07-14"
+
+build:
+  zip:
+    composer:
+      enabled: true
+    assets:
+      enabled: false
+    pack:
+      excludes:
+        paths:
+          - examples
+          - tests
+          - docs
+          - scripts
+          - report
+          - .vscode
+          - .claude
+          - .github
+          - .agents
+          - vendor
+          - AGENTS.md
+          - TMP_ucp-ap2-x402-integration.md
+          - mago.toml
+          - phpcca.yaml
+          - .jscpd.json
+          - captainhook.json
+          - composer-dependency-analyser.php
+          - phpunit.xml.dist
+          - skills.lock
+          - .editorconfig
