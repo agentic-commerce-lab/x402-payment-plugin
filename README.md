@@ -4,22 +4,22 @@ A **research preview** of a payment plugin for Shopware 6.7+ that enables **AI a
 and automated clients to pay for orders programmatically** — no checkout form, no
 credit card, no manual interaction.
 
-The buyer (typically a program) places a regular order through Shopware's Store API
+The buyer (typically an agent) places a regular order through Shopware's Store API
 and then settles it with a cryptographic signature. The payment is made in a
-stablecoin (a digital token pegged to the US dollar) and transferred from the
+stablecoin and transferred from the
 buyer's wallet to the shop's wallet. The entire exchange takes place over plain HTTP.
 
 Full technical specification: [docs/spec.md](docs/spec.md)
 
 ## The concepts in two minutes
 
-No crypto background is required to test this plugin. These five terms are all you need:
+These five foundational terms are all you need to use and test this plugin:
 
 | Term | What it means here |
 | --- | --- |
 | **x402** | An open payment protocol built on the HTTP status code `402 Payment Required`. The shop responds "this order costs 42.99, pay to this address", the buyer returns a signed payment, and the exchange is complete. |
 | **Wallet** | Simply a key pair. The "address" (starting with `0x…`) works like an account number; the "private key" is the secret used to sign payments. No application or registration is needed — a wallet is created by generating a random key. |
-| **USDC** | A "stablecoin": a digital token where 1 USDC equals 1 US dollar. This is the currency the buyer pays with. |
+| **USDC** | A stablecoin: a digital token where 1 USDC equals 1 US dollar. This is the currency the buyer pays with. |
 | **Base Sepolia** | A **test network** — a replica of a real blockchain that runs on valueless test tokens, which makes it ideal for development and testing. (It is the test version of "Base", Coinbase's network, and not the same as "Ethereum Sepolia".) |
 | **Facilitator** | A web service that verifies the buyer's signature and executes the transfer. The plugin communicates with it through two HTTP calls (`/verify`, `/settle`); you never interact with a blockchain directly. |
 
