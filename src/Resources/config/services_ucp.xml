@@ -6,6 +6,7 @@
     <services>
         <service id="Swag\X402Payments\Ucp\X402UcpPaymentHandler">
             <argument type="service" id="Swag\X402Payments\Core\Checkout\Payment\X402PaymentMethodResolver"/>
+            <argument type="service" id="sales_channel_domain.repository"/>
             <tag name="ucp_sdk.payment_handler"/>
         </service>
 

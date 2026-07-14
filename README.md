@@ -318,3 +318,12 @@ settlement evidence:
 bin/console x402:recover-settlements --dry-run   # report only
 bin/console x402:recover-settlements             # mark paid
 ```
+
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the local
+setup, the quality gate, and the pull request workflow.
+
+## License
+
+This plugin is licensed under the [MIT License](LICENSE).

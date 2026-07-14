@@ -21,6 +21,7 @@ build:
           - .github
           - .agents
           - AGENTS.md
+          - TMP_ucp-ap2-x402-integration.md
           - mago.toml
           - phpcca.yaml
           - .jscpd.json
