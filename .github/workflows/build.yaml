@@ -1,0 +1,30 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    outputs:
+      artifact-id:
+        description: A unique identifier for the plugin zip artifact
+        value: ${{ jobs.build_zip.outputs.artifact-id }}
+      artifact-url:
+        description: A download URL for the plugin zip artifact
+        value: ${{ jobs.build_zip.outputs.artifact-url }}
+
+permissions:
+  contents: read
+
+jobs:
+  build_zip:
+    name: Build and validate zip
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-id: ${{ steps.build.outputs.artifact-id }}
+      artifact-url: ${{ steps.build.outputs.artifact-url }}
+    steps:
+      - name: Build
+        id: build
+        uses: shopware/github-actions/build-zip@main
+        with:
+          # shopware-cli names the zip after the plugin class, not the repo.
+          extensionName: SwagX402Payments
