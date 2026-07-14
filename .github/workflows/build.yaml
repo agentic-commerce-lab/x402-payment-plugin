@@ -1,6 +1,9 @@
 name: Build
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
   workflow_call:
     outputs:
@@ -28,3 +31,41 @@ jobs:
         with:
           # shopware-cli names the zip after the plugin class, not the repo.
           extensionName: SwagX402Payments
+
+  release:
+    name: Publish release
+    needs: build_zip
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download zip artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SwagX402Payments.zip
+
+      - name: Create or update release
+        run: |
+          VERSION=$(jq -r '.version' composer.json)
+          TAG="v${VERSION}"
+
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release create "$TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "SwagX402Payments $TAG" \
+              --generate-notes \
+              --latest
+          fi
+
+          # Keep the stable releases/latest/download/SwagX402Payments.zip URL
+          # pointing at the zip built from the latest merge to main.
+          gh release upload "$TAG" SwagX402Payments.zip \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber

@@ -14,11 +14,12 @@ build:
           - docs
           - scripts
           - report
+          - var
+          - vendor
           - .vscode
           - .claude
           - .github
           - .agents
-          - vendor
           - AGENTS.md
           - TMP_ucp-ap2-x402-integration.md
           - mago.toml
@@ -29,3 +30,13 @@ build:
           - phpunit.xml.dist
           - skills.lock
           - .editorconfig
+
+validation:
+  # Research preview: store-listing metadata (icon, authors, marketing
+  # descriptions, manufacturer/support links) is intentionally not maintained.
+  ignore:
+    - metadata.icon
+    - metadata.author
+    - metadata.description
+    - metadata.manufacturer
+    - metadata.support
