@@ -73,6 +73,12 @@ class X402UcpPaymentAuthorizer implements PaymentAuthorizerInterface
      */
     private function validateCredential(array $credential, X402Config $config, Cart $cart): ?string
     {
+        // UCP payment_credential schema: "type" is the one required member.
+        $credentialType = $credential['type'] ?? null;
+        if (!\is_string($credentialType) || $credentialType === '') {
+            return 'credential must declare a "type" (UCP payment_credential schema).';
+        }
+
         $payload = \is_array($credential['payload'] ?? null) ? $credential['payload'] : $credential;
         $authorization = \is_array($payload['authorization'] ?? null) ? $payload['authorization'] : null;
         $signature = $payload['signature'] ?? null;

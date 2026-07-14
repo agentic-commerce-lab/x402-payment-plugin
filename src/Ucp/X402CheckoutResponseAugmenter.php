@@ -78,10 +78,7 @@ class X402CheckoutResponseAugmenter implements CheckoutResponseAugmenterInterfac
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('salesChannel');
 
-        $order = $this->orderRepository
-            ->search($criteria, Context::createDefaultContext())
-            ->getEntities()
-            ->first();
+        $order = $this->orderRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         return $order instanceof OrderEntity ? $order : null;
     }
