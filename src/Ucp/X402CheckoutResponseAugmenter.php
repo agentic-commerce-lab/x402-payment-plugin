@@ -32,6 +32,7 @@ class X402CheckoutResponseAugmenter implements CheckoutResponseAugmenterInterfac
     public function __construct(
         private readonly EntityRepository $orderRepository,
         private readonly X402ConfigService $configService,
+        private readonly UcpBaseUriResolver $baseUriResolver,
     ) {}
 
     public function augment(Checkout $checkout, RequestContext $context): Checkout
@@ -46,7 +47,10 @@ class X402CheckoutResponseAugmenter implements CheckoutResponseAugmenterInterfac
         }
 
         $config = $this->configService->getConfig($order->getSalesChannelId());
-        $baseUri = rtrim($context->runtimeConfiguration?->baseUri ?? '', '/');
+        $baseUri = $this->baseUriResolver->resolve(
+            $context->runtimeConfiguration?->baseUri,
+            $context->headers['host'] ?? $context->host,
+        );
         if (!$config->isComplete() || $baseUri === '') {
             return $checkout;
         }
