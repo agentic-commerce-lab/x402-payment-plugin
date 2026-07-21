@@ -32,8 +32,14 @@
         </input-field>
         <input-field type="text">
             <name>assetSymbol</name>
-            <label>Asset symbol</label>
+            <label>Asset symbol (display only)</label>
+            <helpText>Human-facing symbol shown in capabilities/checkout responses (e.g. USDC). NOT the EIP-712 signing name.</helpText>
             <defaultValue>USDC</defaultValue>
+        </input-field>
+        <input-field type="text">
+            <name>assetEip712Name</name>
+            <label>Asset EIP-712 domain name</label>
+            <helpText>Must equal the token contract's on-chain name(). Base mainnet USDC = "USD Coin"; Base Sepolia test USDC = "USDC". Leave empty to reuse the display symbol (testnet default).</helpText>
         </input-field>
         <input-field type="int">
             <name>assetDecimals</name>

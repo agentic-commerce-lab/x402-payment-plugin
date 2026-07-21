@@ -49,7 +49,7 @@ class X402RequirementBuilder
             description: \sprintf('Shopware order %s', $sessionContext->order->getOrderNumber() ?? ''),
             maxTimeoutSeconds: $config->maxTimeoutSeconds,
             extra: [
-                'name' => $config->assetSymbol,
+                'name' => $config->assetEip712Name !== '' ? $config->assetEip712Name : $config->assetSymbol,
                 'version' => '2',
                 'shopwareOrderTransactionId' => $sessionContext->transaction->getId(),
                 'paymentSessionId' => $paymentSessionId,
