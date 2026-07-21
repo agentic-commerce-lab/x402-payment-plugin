@@ -18,6 +18,7 @@ class X402FacilitatorClient
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         private readonly LoggerInterface $logger,
+        private readonly X402CdpJwtFactory $cdpJwtFactory,
     ) {}
 
     public function verify(
@@ -49,13 +50,25 @@ class X402FacilitatorClient
         PaymentPayload $payload,
         PaymentRequirements $requirements,
     ): array {
+        $url = $config->facilitatorBaseUrl . $path;
+
         $headers = ['Content-Type' => 'application/json'];
-        if ($config->facilitatorApiKey !== null) {
+        if ($config->facilitatorCdpKeyId !== null && $config->facilitatorCdpKeySecret !== null) {
+            // Coinbase CDP mainnet facilitator: per-request signed JWT.
+            $headers['Authorization'] =
+                'Bearer '
+                . $this->cdpJwtFactory->create(
+                    $config->facilitatorCdpKeyId,
+                    $config->facilitatorCdpKeySecret,
+                    'POST',
+                    $url,
+                );
+        } elseif ($config->facilitatorApiKey !== null) {
             $headers['Authorization'] = 'Bearer ' . $config->facilitatorApiKey;
         }
 
         try {
-            $response = $this->httpClient->request('POST', $config->facilitatorBaseUrl . $path, [
+            $response = $this->httpClient->request('POST', $url, [
                 'headers' => $headers,
                 'timeout' => $config->facilitatorTimeoutSeconds,
                 'json' => [

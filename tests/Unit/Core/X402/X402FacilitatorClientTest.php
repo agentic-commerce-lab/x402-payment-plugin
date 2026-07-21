@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Swag\X402Payments\Core\X402\Exception\X402Exception;
+use Swag\X402Payments\Core\X402\X402CdpJwtFactory;
 use Swag\X402Payments\Core\X402\X402FacilitatorClient;
 use Swag\X402Payments\Tests\Unit\Support\X402Fixtures;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -160,6 +161,6 @@ final class X402FacilitatorClientTest extends TestCase
             return $response;
         });
 
-        return new X402FacilitatorClient($httpClient, new NullLogger());
+        return new X402FacilitatorClient($httpClient, new NullLogger(), new X402CdpJwtFactory());
     }
 }

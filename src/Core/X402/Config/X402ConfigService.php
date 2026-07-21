@@ -38,6 +38,8 @@ class X402ConfigService
                 $salesChannelId,
                 true,
             ),
+            facilitatorCdpKeyId: $this->stringOrNull('facilitatorCdpKeyId', $salesChannelId),
+            facilitatorCdpKeySecret: $this->stringOrNull('facilitatorCdpKeySecret', $salesChannelId),
         );
     }
 
