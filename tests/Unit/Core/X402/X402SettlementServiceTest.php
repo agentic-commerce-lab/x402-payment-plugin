@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Context;
 use Swag\X402Payments\Core\Checkout\Payment\X402TransactionStateService;
 use Swag\X402Payments\Core\Content\X402PaymentSession\X402PaymentSessionEntity;
@@ -61,6 +62,7 @@ final class X402SettlementServiceTest extends TestCase
             $this->payloadValidator,
             $this->facilitatorClient,
             $this->transactionStateService,
+            new NullLogger(),
         );
     }
 

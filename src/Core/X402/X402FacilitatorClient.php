@@ -79,6 +79,10 @@ class X402FacilitatorClient
         $this->logger->info('x402 facilitator call completed.', [
             'path' => $path,
             'payloadHash' => $payload->payloadHash,
+            'network' => $requirements->network,
+            'asset' => $requirements->asset,
+            'domainName' => $requirements->extra['name'] ?? null,
+            'domainVersion' => $requirements->extra['version'] ?? null,
         ]);
 
         /** @var array<string, mixed> $data */

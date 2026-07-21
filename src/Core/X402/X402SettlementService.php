@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Swag\X402Payments\Core\X402;
 
 use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Swag\X402Payments\Core\Checkout\Payment\X402TransactionStateService;
@@ -23,12 +24,14 @@ use Swag\X402Payments\Core\X402\Exception\X402Exception;
  */
 class X402SettlementService
 {
+    // @mago-expect lint:excessive-parameter-list
     public function __construct(
         private readonly Connection $connection,
         private readonly X402PaymentSessionService $sessionService,
         private readonly X402PayloadValidator $payloadValidator,
         private readonly X402FacilitatorClient $facilitatorClient,
         private readonly X402TransactionStateService $transactionStateService,
+        private readonly LoggerInterface $logger,
     ) {}
 
     /**
@@ -116,6 +119,16 @@ class X402SettlementService
         $verifyResult = $this->facilitatorClient->verify($config, $payload, $requirements);
 
         if (!$verifyResult->success) {
+            $this->logger->warning('x402 facilitator rejected verification.', [
+                'paymentSessionId' => $session->getId(),
+                'invalidReason' => $verifyResult->errorReason,
+                'domainName' => $requirements->extra['name'] ?? null,
+                'domainVersion' => $requirements->extra['version'] ?? null,
+                'network' => $requirements->network,
+                'asset' => $requirements->asset,
+                'facilitatorRaw' => $verifyResult->raw,
+            ]);
+
             $this->persistFailure($session, X402PaymentSessionStates::STATE_VERIFY_FAILED, $verifyResult, $context);
 
             throw X402Exception::verificationFailed($verifyResult->errorReason ?? 'unknown');
