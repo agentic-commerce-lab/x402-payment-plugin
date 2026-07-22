@@ -16,6 +16,17 @@
         <input-field type="password">
             <name>facilitatorApiKey</name>
             <label>Facilitator API key</label>
+            <helpText>Static bearer token for facilitators that use one (e.g. testnet). Leave empty when using Coinbase CDP (see the CDP fields below).</helpText>
+        </input-field>
+        <input-field type="text">
+            <name>facilitatorCdpKeyId</name>
+            <label>CDP API key id (mainnet)</label>
+            <helpText>Coinbase CDP API key name/id. When set with the secret, the facilitator client signs a per-request CDP JWT (needed for the CDP mainnet facilitator).</helpText>
+        </input-field>
+        <input-field type="password">
+            <name>facilitatorCdpKeySecret</name>
+            <label>CDP API key secret (Ed25519, mainnet)</label>
+            <helpText>The CDP Ed25519 secret (base64). Used to sign the CDP JWT. Never leaves the server.</helpText>
         </input-field>
         <input-field type="text">
             <name>merchantWalletAddress</name>
