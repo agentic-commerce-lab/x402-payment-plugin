@@ -22,9 +22,22 @@ if (is_file($pluginAutoload)) {
 // This keeps the plugin autoloader authoritative and never touches the
 // lane's platform_check, so the suite still runs on the plugin's own PHP
 // floor when the lane's is higher.
-$sdkDir = __DIR__ . '/../../../../vendor/ucp-php-sdk';
+// Probe the known locations the SDK can live in, most specific first: the
+// platform lane's shared vendor (agent-shop monorepo layout), then a locally
+// vendored copy should this plugin ever require it directly. The first hit
+// wins; when none exist, the SDK-dependent tests skip themselves.
+$sdkCandidates = [
+    __DIR__ . '/../../../../vendor/ucp-php-sdk',
+    __DIR__ . '/../vendor/ucp-php-sdk',
+];
 
-if ($loader instanceof ClassLoader && is_dir($sdkDir)) {
-    $loader->addPsr4('Ucp\\Sdk\\', $sdkDir . '/core/src');
-    $loader->addPsr4('Ucp\\Sdk\\Symfony\\', $sdkDir . '/symfony-bundle/src');
+if ($loader instanceof ClassLoader && !interface_exists('Ucp\\Sdk\\Contract\\CheckoutResponseAugmenterInterface')) {
+    foreach ($sdkCandidates as $sdkDir) {
+        if (is_dir($sdkDir)) {
+            $loader->addPsr4('Ucp\\Sdk\\', $sdkDir . '/core/src');
+            $loader->addPsr4('Ucp\\Sdk\\Symfony\\', $sdkDir . '/symfony-bundle/src');
+
+            break;
+        }
+    }
 }

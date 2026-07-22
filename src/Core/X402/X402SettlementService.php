@@ -119,27 +119,41 @@ class X402SettlementService
         $verifyResult = $this->facilitatorClient->verify($config, $payload, $requirements);
 
         if (!$verifyResult->success) {
+            $domain = $this->describeDomain($requirements);
+
             $this->logger->warning('x402 facilitator rejected verification.', [
                 'paymentSessionId' => $session->getId(),
                 'invalidReason' => $verifyResult->errorReason,
-                'domainName' => $requirements->extra['name'] ?? null,
-                'domainVersion' => $requirements->extra['version'] ?? null,
-                'network' => $requirements->network,
-                'asset' => $requirements->asset,
+                'domainName' => $domain['name'],
+                'domainVersion' => $domain['version'],
+                'network' => $domain['network'],
+                'asset' => $domain['asset'],
                 'facilitatorRaw' => $verifyResult->raw,
             ]);
 
             $this->persistFailure($session, X402PaymentSessionStates::STATE_VERIFY_FAILED, $verifyResult, $context);
 
-            throw X402Exception::verificationFailed($verifyResult->errorReason ?? 'unknown', [
-                'name' => $requirements->extra['name'] ?? null,
-                'version' => $requirements->extra['version'] ?? null,
-                'network' => $requirements->network,
-                'asset' => $requirements->asset,
-            ]);
+            throw X402Exception::verificationFailed($verifyResult->errorReason ?? 'unknown', $domain);
         }
 
         $this->sessionService->markVerified($session->getId(), $verifyResult, $context);
+    }
+
+    /**
+     * @return array{name: mixed, version: mixed, network: string, asset: string}
+     */
+    private function describeDomain(PaymentRequirements $requirements): array
+    {
+        // Union fills any absent EIP-712 domain keys with null without adding
+        // branches (keeps the class within its cyclomatic-complexity budget).
+        $extra = $requirements->extra + ['name' => null, 'version' => null];
+
+        return [
+            'name' => $extra['name'],
+            'version' => $extra['version'],
+            'network' => $requirements->network,
+            'asset' => $requirements->asset,
+        ];
     }
 
     private function doSettle(

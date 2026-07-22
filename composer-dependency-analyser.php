@@ -11,6 +11,10 @@ $config = (new Configuration())
     // dependencies of this plugin: the services load conditionally at runtime
     // only when those packages are installed (SwagX402Payments::build()).
     ->ignoreErrorsOnPath(__DIR__ . '/src/Ucp', [ErrorType::UNKNOWN_CLASS])
+    // The augmenter test exercises that same optional bridge and references
+    // Ucp\Sdk\* types; it skips at runtime when the SDK is absent (see
+    // tests/bootstrap.php), so the analyser cannot autoload the symbols here.
+    ->ignoreErrorsOnPath(__DIR__ . '/tests/Unit/Ucp', [ErrorType::UNKNOWN_CLASS])
     // Provides the #[\Override] attribute class on PHP 8.2 (the minimum
     // supported version). On PHP >= 8.3 the symbol resolves to core, so the
     // analyser would report the package as unused there; on 8.2 it would be a

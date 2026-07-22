@@ -45,6 +45,10 @@ final class X402CheckoutResponseAugmenterTest extends TestCase
     #[\Override]
     protected function setUp(): void
     {
+        if (!interface_exists(\Ucp\Sdk\Contract\CheckoutResponseAugmenterInterface::class)) {
+            self::markTestSkipped('ucp-php-sdk is not installed in this repository; the augmenter bridge is optional.');
+        }
+
         $this->orderRepository = $this->createMock(EntityRepository::class);
         $this->configService = $this->createMock(X402ConfigService::class);
         $this->context = Context::createDefaultContext();
