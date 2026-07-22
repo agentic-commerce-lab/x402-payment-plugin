@@ -57,7 +57,12 @@ class X402CheckoutResponseAugmenter implements CheckoutResponseAugmenterInterfac
 
         $extra = [
             'handler_id' => X402UcpPaymentHandler::HANDLER_ID,
-            'pay_url' => \sprintf('%s/store-api/x402/order/%s/pay', $baseUri, $order->getId()),
+            'pay_url' => \sprintf(
+                '%s/store-api/x402/order/%s/pay?deepLinkCode=%s',
+                $baseUri,
+                $order->getId(),
+                rawurlencode($order->getDeepLinkCode()),
+            ),
             'deep_link_code' => $order->getDeepLinkCode(),
             'scheme' => 'exact',
             'network' => $config->network,
