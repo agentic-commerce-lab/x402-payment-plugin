@@ -38,6 +38,7 @@ class X402ConfigService
                 $salesChannelId,
                 true,
             ),
+            assetEip712Name: $this->string('assetEip712Name', $salesChannelId, ''),
         );
     }
 
