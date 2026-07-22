@@ -2,17 +2,29 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/../vendor/autoload.php';
+use Composer\Autoload\ClassLoader;
+
+$pluginAutoload = __DIR__ . '/../vendor/autoload.php';
+
+$loader = null;
+if (is_file($pluginAutoload)) {
+    $loader = require $pluginAutoload;
+}
 
 // The plugin's own composer.json intentionally does not declare
 // ucp-php-sdk as a dependency - in production, Ucp\Sdk\* classes (used by
 // X402CheckoutResponseAugmenter and friends) are provided by the platform
 // lane's shared vendor (via shopware/agentic-commerce), not by this
-// plugin's own vendor/. Load that lane autoloader too, when present, so
-// unit tests can construct Ucp\Sdk\* types without duplicating the SDK as
-// a standalone dependency here.
-$laneAutoload = __DIR__ . '/../../../../vendor/autoload.php';
+// plugin's own vendor/. Rather than requiring the lane's autoload.php
+// (which runs the lane's platform_check.php and aborts below its PHP
+// floor - currently >= 8.4.1, well above this plugin's own ^8.2), register
+// the SDK's PSR-4 prefixes directly onto the plugin's own ClassLoader.
+// This keeps the plugin autoloader authoritative and never touches the
+// lane's platform_check, so the suite still runs on the plugin's own PHP
+// floor when the lane's is higher.
+$sdkDir = __DIR__ . '/../../../../vendor/ucp-php-sdk';
 
-if (is_file($laneAutoload)) {
-    require $laneAutoload;
+if ($loader instanceof ClassLoader && is_dir($sdkDir)) {
+    $loader->addPsr4('Ucp\\Sdk\\', $sdkDir . '/core/src');
+    $loader->addPsr4('Ucp\\Sdk\\Symfony\\', $sdkDir . '/symfony-bundle/src');
 }

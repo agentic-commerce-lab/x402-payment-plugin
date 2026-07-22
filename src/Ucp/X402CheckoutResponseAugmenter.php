@@ -61,7 +61,7 @@ class X402CheckoutResponseAugmenter implements CheckoutResponseAugmenterInterfac
                 '%s/store-api/x402/order/%s/pay?deepLinkCode=%s',
                 $baseUri,
                 $order->getId(),
-                rawurlencode($order->getDeepLinkCode()),
+                rawurlencode($order->getDeepLinkCode() ?? ''),
             ),
             'deep_link_code' => $order->getDeepLinkCode(),
             'scheme' => 'exact',
