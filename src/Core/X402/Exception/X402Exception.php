@@ -134,13 +134,22 @@ class X402Exception extends HttpException
         );
     }
 
-    public static function verificationFailed(string $reason): self
+    /**
+     * @param array<string, mixed> $domain advertised EIP-712 domain + settlement target
+     *                                      (name, version, network, asset) for agent self-diagnosis
+     */
+    public static function verificationFailed(string $reason, array $domain = []): self
     {
+        $parameters = ['reason' => $reason];
+        if ($domain !== []) {
+            $parameters['domain'] = $domain;
+        }
+
         return new self(
             Response::HTTP_PAYMENT_REQUIRED,
             self::VERIFICATION_FAILED,
             'The facilitator rejected the payment payload: {{ reason }}',
-            ['reason' => $reason],
+            $parameters,
         );
     }
 

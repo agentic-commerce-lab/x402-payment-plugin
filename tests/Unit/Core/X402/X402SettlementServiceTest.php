@@ -14,6 +14,7 @@ use Swag\X402Payments\Core\Checkout\Payment\X402TransactionStateService;
 use Swag\X402Payments\Core\Content\X402PaymentSession\X402PaymentSessionEntity;
 use Swag\X402Payments\Core\Content\X402PaymentSession\X402PaymentSessionStates;
 use Swag\X402Payments\Core\X402\Dto\FacilitatorResult;
+use Swag\X402Payments\Core\X402\Dto\PaymentRequirements;
 use Swag\X402Payments\Core\X402\Exception\X402Exception;
 use Swag\X402Payments\Core\X402\X402FacilitatorClient;
 use Swag\X402Payments\Core\X402\X402PayloadValidator;
@@ -27,6 +28,7 @@ use Swag\X402Payments\Tests\Unit\Support\X402Fixtures;
  * failed verification/settlement never marks the transaction paid, and
  * settlement evidence is persisted before the paid transition.
  */
+// @mago-expect lint:too-many-methods
 #[CoversClass(X402SettlementService::class)]
 final class X402SettlementServiceTest extends TestCase
 {
@@ -250,6 +252,54 @@ final class X402SettlementServiceTest extends TestCase
         $this->expectException(\RuntimeException::class);
 
         $this->settlementService->settle($session, X402Fixtures::payload(), X402Fixtures::config(), $this->context);
+    }
+
+    /**
+     * Spec: a facilitator verify-rejection surfaces the advertised EIP-712
+     * domain (name/version/network/asset) in the exception parameters so an
+     * agent can self-diagnose a domain mismatch, without corrupting the
+     * `{{ reason }}` message placeholder.
+     */
+    public function testVerificationFailureExposesAdvertisedDomainInErrorParameters(): void
+    {
+        $requirements = new PaymentRequirements(
+            scheme: 'exact',
+            network: 'base',
+            maxAmountRequired: X402Fixtures::ATOMIC_AMOUNT,
+            asset: '0x8335176BeA1E27078bA0Ba0F44f8A6e1E00cBBB',
+            payTo: X402Fixtures::MERCHANT_WALLET,
+            resource: X402Fixtures::RESOURCE_URL,
+            description: 'Shopware order 10042',
+            maxTimeoutSeconds: 300,
+            extra: ['name' => 'USD Coin', 'version' => '2'],
+        );
+        $session = X402Fixtures::session(['requirementsJson' => $requirements->toArray()]);
+        $this->lockReturnsState(X402PaymentSessionStates::STATE_REQUIREMENTS_ISSUED);
+        $this->sessionService->method('isPayloadHashUsedElsewhere')->willReturn(false);
+
+        $this->facilitatorClient
+            ->method('verify')
+            ->willReturn($this->facilitatorResult(false, errorReason: 'invalid_payload'));
+
+        $this->facilitatorClient->expects(self::never())->method('settle');
+        $this->transactionStateService->expects(self::never())->method('markPaid');
+        $this->sessionService
+            ->expects(self::once())
+            ->method('markFailed')
+            ->with($session->getId(), X402PaymentSessionStates::STATE_VERIFY_FAILED, self::anything(), $this->context);
+
+        try {
+            $this->settlementService->settle($session, X402Fixtures::payload(), X402Fixtures::config(), $this->context);
+            self::fail('expected X402Exception');
+        } catch (X402Exception $exception) {
+            self::assertSame(X402Exception::VERIFICATION_FAILED, $exception->getErrorCode());
+            $params = $exception->getParameters();
+            self::assertSame('invalid_payload', $params['reason']);
+            self::assertArrayHasKey('domain', $params);
+            self::assertSame('USD Coin', $params['domain']['name']);
+            self::assertSame('2', $params['domain']['version']);
+            self::assertSame('base', $params['domain']['network']);
+        }
     }
 
     private function lockReturnsState(string $state): void

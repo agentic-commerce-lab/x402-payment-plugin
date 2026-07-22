@@ -131,7 +131,12 @@ class X402SettlementService
 
             $this->persistFailure($session, X402PaymentSessionStates::STATE_VERIFY_FAILED, $verifyResult, $context);
 
-            throw X402Exception::verificationFailed($verifyResult->errorReason ?? 'unknown');
+            throw X402Exception::verificationFailed($verifyResult->errorReason ?? 'unknown', [
+                'name' => $requirements->extra['name'] ?? null,
+                'version' => $requirements->extra['version'] ?? null,
+                'network' => $requirements->network,
+                'asset' => $requirements->asset,
+            ]);
         }
 
         $this->sessionService->markVerified($session->getId(), $verifyResult, $context);
