@@ -126,11 +126,8 @@ final class X402Fixtures
         );
     }
 
-    public static function config(
-        #[\SensitiveParameter]
-        ?string $apiKey = null,
-        string $assetEip712Name = '',
-    ): X402Config {
+    public static function config(#[\SensitiveParameter] ?string $apiKey = null): X402Config
+    {
         return new X402Config(
             enabled: true,
             facilitatorBaseUrl: 'https://facilitator.test',
@@ -148,7 +145,6 @@ final class X402Fixtures
             sessionExpiryMinutes: 15,
             allowDeepLinkOwnershipProof: true,
             allowAfterOrderPaymentMethodSwitch: true,
-            assetEip712Name: $assetEip712Name,
         );
     }
 

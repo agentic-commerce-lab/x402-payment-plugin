@@ -460,12 +460,6 @@ Example response:
 }
 ```
 
-> `extra.name`/`extra.version` are the ERC-3009 EIP-712 domain fields the buyer signs
-> over and the facilitator uses to recover the signature. They MUST equal the asset
-> contract's on-chain `name()`/`version()`. Base mainnet USDC is `"USD Coin"` / `"2"`;
-> Base Sepolia test USDC is `"USDC"` / `"2"`. Configure via `assetEip712Name`
-> (falls back to `assetSymbol` when empty).
-
 #### 7.2.2 Call With Payment Header
 
 ```http

@@ -25,10 +25,6 @@ final readonly class X402Config
         public int $sessionExpiryMinutes,
         public bool $allowDeepLinkOwnershipProof,
         public bool $allowAfterOrderPaymentMethodSwitch,
-        // EIP-712 domain `name` for the ERC-3009 TransferWithAuthorization signature.
-        // MUST equal the asset contract's on-chain name() (Base mainnet USDC = "USD Coin",
-        // testnet USDC = "USDC"). Empty falls back to $assetSymbol for backward compat.
-        public string $assetEip712Name = '',
     ) {}
 
     public function isComplete(): bool

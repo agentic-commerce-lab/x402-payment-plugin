@@ -271,7 +271,7 @@ final class X402SettlementServiceTest extends TestCase
             resource: X402Fixtures::RESOURCE_URL,
             description: 'Shopware order 10042',
             maxTimeoutSeconds: 300,
-            extra: ['name' => 'USD Coin', 'version' => '2'],
+            extra: ['name' => 'USDC', 'version' => '2'],
         );
         $session = X402Fixtures::session(['requirementsJson' => $requirements->toArray()]);
         $this->lockReturnsState(X402PaymentSessionStates::STATE_REQUIREMENTS_ISSUED);
@@ -296,7 +296,7 @@ final class X402SettlementServiceTest extends TestCase
             $params = $exception->getParameters();
             self::assertSame('invalid_payload', $params['reason']);
             self::assertArrayHasKey('domain', $params);
-            self::assertSame('USD Coin', $params['domain']['name']);
+            self::assertSame('USDC', $params['domain']['name']);
             self::assertSame('2', $params['domain']['version']);
             self::assertSame('base', $params['domain']['network']);
         }

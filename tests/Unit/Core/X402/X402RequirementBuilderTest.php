@@ -122,36 +122,12 @@ final class X402RequirementBuilderTest extends TestCase
         self::assertStringContainsString('Shopware order 10042', $serialized);
     }
 
-    public function testExtraNameFallsBackToAssetSymbolWhenEip712NameUnset(): void
+    private function sessionContext(float $transactionAmount = 42.99, string $currencyIso = 'USD'): X402SessionContext
     {
-        $quote = $this->builder->build(
-            $this->sessionContext(config: X402Fixtures::config(assetEip712Name: '')),
-            Uuid::randomHex(),
-        );
-
-        self::assertSame('USDC', $quote->requirements->extra['name']);
-        self::assertSame('2', $quote->requirements->extra['version']);
-    }
-
-    public function testExtraNameUsesConfiguredEip712NameWhenSet(): void
-    {
-        $quote = $this->builder->build(
-            $this->sessionContext(config: X402Fixtures::config(assetEip712Name: 'USD Coin')),
-            Uuid::randomHex(),
-        );
-
-        self::assertSame('USD Coin', $quote->requirements->extra['name']);
-    }
-
-    private function sessionContext(
-        float $transactionAmount = 42.99,
-        string $currencyIso = 'USD',
-        ?\Swag\X402Payments\Core\X402\Config\X402Config $config = null,
-    ): X402SessionContext {
         return new X402SessionContext(
             order: $this->order($currencyIso),
             transaction: $this->transaction($transactionAmount),
-            config: $config ?? X402Fixtures::config(),
+            config: X402Fixtures::config(),
             salesChannelId: Uuid::randomHex(),
             resourceUrl: X402Fixtures::RESOURCE_URL,
             ownershipProof: X402PaymentSessionStates::OWNERSHIP_PROOF_CONTEXT_TOKEN,
