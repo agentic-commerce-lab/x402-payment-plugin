@@ -24,7 +24,7 @@ final class X402CdpJwtFactory
      * @param string $method HTTP method of the facilitator request (e.g. POST)
      * @param string $url    absolute facilitator URL (e.g. https://api.cdp.coinbase.com/platform/v2/x402/settle)
      */
-    public function create(string $keyId, string $secret, string $method, string $url): string
+    public function create(string $keyId, #[\SensitiveParameter] string $secret, string $method, string $url): string
     {
         $parts = parse_url($url);
         $host = $parts['host'] ?? '';
@@ -33,29 +33,36 @@ final class X402CdpJwtFactory
             throw X402Exception::facilitatorUnavailable();
         }
 
-        $now = time();
-        $header = [
-            'typ' => 'JWT',
-            'alg' => 'EdDSA',
-            'kid' => $keyId,
-            'nonce' => bin2hex(random_bytes(16)),
-        ];
-        $payload = [
-            'sub' => $keyId,
-            'iss' => 'cdp',
-            'nbf' => $now,
-            'exp' => $now + self::TTL_SECONDS,
-            // CDP binds the token to the request: "<METHOD> <host><path>", no scheme.
-            'uri' => strtoupper($method) . ' ' . $host . $path,
-        ];
+        try {
+            $now = time();
+            $header = [
+                'typ' => 'JWT',
+                'alg' => 'EdDSA',
+                'kid' => $keyId,
+                'nonce' => bin2hex(random_bytes(16)),
+            ];
+            $payload = [
+                'sub' => $keyId,
+                'iss' => 'cdp',
+                'nbf' => $now,
+                'exp' => $now + self::TTL_SECONDS,
+                // CDP binds the token to the request: "<METHOD> <host><path>", no scheme.
+                'uri' => strtoupper($method) . ' ' . $host . $path,
+            ];
 
-        $signingInput = $this->b64url($this->json($header)) . '.' . $this->b64url($this->json($payload));
-        $signature = sodium_crypto_sign_detached($signingInput, $this->secretKey($secret));
+            $signingInput = $this->b64url($this->json($header)) . '.' . $this->b64url($this->json($payload));
+            $signature = sodium_crypto_sign_detached($signingInput, $this->secretKey($secret));
 
-        return $signingInput . '.' . $this->b64url($signature);
+            return $signingInput . '.' . $this->b64url($signature);
+        } catch (\SodiumException|\Random\RandomException) {
+            throw X402Exception::facilitatorUnavailable();
+        }
     }
 
-    private function secretKey(string $secret): string
+    /**
+     * @throws \SodiumException
+     */
+    private function secretKey(#[\SensitiveParameter] string $secret): string
     {
         $raw = base64_decode(strtr(trim($secret), '-_', '+/'), true);
         if (false === $raw) {

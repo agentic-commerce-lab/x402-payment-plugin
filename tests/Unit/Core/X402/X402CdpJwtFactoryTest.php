@@ -36,7 +36,7 @@ final class X402CdpJwtFactoryTest extends TestCase
         self::assertSame('organizations/o/apiKeys/k', $payload['sub']);
         self::assertSame('cdp', $payload['iss']);
         self::assertSame('POST api.cdp.coinbase.com/platform/v2/x402/settle', $payload['uri']);
-        self::assertSame($payload['nbf'] + 120, $payload['exp']);
+        self::assertSame((int) $payload['nbf'] + 120, $payload['exp']);
 
         self::assertTrue(
             sodium_crypto_sign_verify_detached($this->b64urlDecode($s), $h . '.' . $p, $public),
