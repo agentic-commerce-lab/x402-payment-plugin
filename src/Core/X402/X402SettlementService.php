@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Swag\X402Payments\Core\X402;
 
 use Doctrine\DBAL\Connection;
-use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Swag\X402Payments\Core\Checkout\Payment\X402TransactionStateService;
@@ -24,14 +23,12 @@ use Swag\X402Payments\Core\X402\Exception\X402Exception;
  */
 class X402SettlementService
 {
-    // @mago-expect lint:excessive-parameter-list
     public function __construct(
         private readonly Connection $connection,
         private readonly X402PaymentSessionService $sessionService,
         private readonly X402PayloadValidator $payloadValidator,
         private readonly X402FacilitatorClient $facilitatorClient,
         private readonly X402TransactionStateService $transactionStateService,
-        private readonly LoggerInterface $logger,
     ) {}
 
     /**
@@ -119,41 +116,12 @@ class X402SettlementService
         $verifyResult = $this->facilitatorClient->verify($config, $payload, $requirements);
 
         if (!$verifyResult->success) {
-            $domain = $this->describeDomain($requirements);
-
-            $this->logger->warning('x402 facilitator rejected verification.', [
-                'paymentSessionId' => $session->getId(),
-                'invalidReason' => $verifyResult->errorReason,
-                'domainName' => $domain['name'],
-                'domainVersion' => $domain['version'],
-                'network' => $domain['network'],
-                'asset' => $domain['asset'],
-                'facilitatorRaw' => $verifyResult->raw,
-            ]);
-
             $this->persistFailure($session, X402PaymentSessionStates::STATE_VERIFY_FAILED, $verifyResult, $context);
 
-            throw X402Exception::verificationFailed($verifyResult->errorReason ?? 'unknown', $domain);
+            throw X402Exception::verificationFailed($verifyResult->errorReason ?? 'unknown');
         }
 
         $this->sessionService->markVerified($session->getId(), $verifyResult, $context);
-    }
-
-    /**
-     * @return array{name: mixed, version: mixed, network: string, asset: string}
-     */
-    private function describeDomain(PaymentRequirements $requirements): array
-    {
-        // Union fills any absent EIP-712 domain keys with null without adding
-        // branches (keeps the class within its cyclomatic-complexity budget).
-        $extra = $requirements->extra + ['name' => null, 'version' => null];
-
-        return [
-            'name' => $extra['name'],
-            'version' => $extra['version'],
-            'network' => $requirements->network,
-            'asset' => $requirements->asset,
-        ];
     }
 
     private function doSettle(

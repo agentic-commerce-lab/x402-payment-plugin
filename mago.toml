@@ -34,9 +34,6 @@ unchecked-exceptions = ["RuntimeException", "LogicException", "Doctrine\\DBAL\\E
 # src/Ucp/: optional bridge to ucp-php-sdk / SwagAgenticCommerce, whose
 # classes are not installed in this repo (services load conditionally at
 # runtime; see SwagX402Payments::build()).
-# tests/Unit/Ucp/: the augmenter test exercises that same optional bridge and
-# references Ucp\Sdk\* types the analyzer cannot resolve here; the test itself
-# skips at runtime when the SDK is absent (see tests/bootstrap.php).
 ignore = [
   { code = "non-existent-class-like", in = "src/Ucp/" },
   { code = "non-existent-use-import", in = "src/Ucp/" },
@@ -48,13 +45,6 @@ ignore = [
   { code = "possibly-null-property-access", in = "tests/" },
   { code = "possible-method-access-on-null", in = "tests/" },
   { code = "possibly-null-argument", in = "tests/" },
-  { code = "non-existent-class-like", in = "tests/Unit/Ucp/" },
-  { code = "non-existent-class", in = "tests/Unit/Ucp/" },
-  { code = "non-existent-use-import", in = "tests/Unit/Ucp/" },
-  { code = "less-specific-argument", in = "tests/Unit/Ucp/" },
-  { code = "invalid-property-access", in = "tests/Unit/Ucp/" },
-  { code = "null-array-access", in = "tests/Unit/Ucp/" },
-  { code = "never-return", in = "tests/Unit/Ucp/" },
 ]
 
 [guard]

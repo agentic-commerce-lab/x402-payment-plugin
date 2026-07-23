@@ -74,7 +74,6 @@
             <argument type="service" id="Swag\X402Payments\Core\X402\X402PayloadValidator"/>
             <argument type="service" id="Swag\X402Payments\Core\X402\X402FacilitatorClient"/>
             <argument type="service" id="Swag\X402Payments\Core\Checkout\Payment\X402TransactionStateService"/>
-            <argument type="service" id="logger"/>
         </service>
 
         <service id="Swag\X402Payments\Core\X402\X402SettlementRecoveryService">
