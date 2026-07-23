@@ -32,6 +32,7 @@ class X402CheckoutResponseAugmenter implements CheckoutResponseAugmenterInterfac
     public function __construct(
         private readonly EntityRepository $orderRepository,
         private readonly X402ConfigService $configService,
+        private readonly UcpBaseUriResolver $baseUriResolver,
     ) {}
 
     public function augment(Checkout $checkout, RequestContext $context): Checkout
@@ -46,14 +47,22 @@ class X402CheckoutResponseAugmenter implements CheckoutResponseAugmenterInterfac
         }
 
         $config = $this->configService->getConfig($order->getSalesChannelId());
-        $baseUri = rtrim($context->runtimeConfiguration?->baseUri ?? '', '/');
+        $baseUri = $this->baseUriResolver->resolve(
+            $context->runtimeConfiguration?->baseUri,
+            $context->headers['host'] ?? $context->host,
+        );
         if (!$config->isComplete() || $baseUri === '') {
             return $checkout;
         }
 
         $extra = [
             'handler_id' => X402UcpPaymentHandler::HANDLER_ID,
-            'pay_url' => \sprintf('%s/store-api/x402/order/%s/pay', $baseUri, $order->getId()),
+            'pay_url' => \sprintf(
+                '%s/store-api/x402/order/%s/pay?deepLinkCode=%s',
+                $baseUri,
+                $order->getId(),
+                rawurlencode($order->getDeepLinkCode() ?? ''),
+            ),
             'deep_link_code' => $order->getDeepLinkCode(),
             'scheme' => 'exact',
             'network' => $config->network,
